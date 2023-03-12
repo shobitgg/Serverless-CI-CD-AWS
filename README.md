@@ -258,4 +258,4 @@ Refresh the ALB address to see the v1.1 app page loading — Magic!
 
 
 
-
+https://route179.dev/2020/06/20/build-a-serverless-ci-cd-pipeline-on-aws-with-fargate-codepipeline-and-terraform/
