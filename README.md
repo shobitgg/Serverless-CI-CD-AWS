@@ -127,6 +127,7 @@ module "ecs_codepipeline" {
 
 Note the pipeline is synced to GitHub with a webhook trigger enabled, and you’ll need to supply a GitHub personal token for this. So go create one if you haven’t already done so.
 
+![](https://route179.files.wordpress.com/2020/06/image.png?w=624&zoom=2) 
 
 
 
@@ -154,12 +155,14 @@ github_webhooks_token = "xxxx"
 github_repo_owner = "xxxx"
 github_repo_name = "fargate-demo-app"
 Now run the Terraform script
-
+```
 terraform init
 terraform apply
+
+```
 The process will take about 5 mins and you should see an output like this. Note the public URL of the ALB, which is providing LB services to the 2x Fargate container tasks.
 
-
+https://route179.files.wordpress.com/2020/06/image-1.png
 
 ![](https://route179.files.wordpress.com/2020/06/image-1.png)
 
@@ -168,24 +171,31 @@ Step-3: Review the Fargate Service
 
 On the AWS Console, go to “Elastic Container Service (ECS) —> Cluster” and we can see an ECS cluster “default” has been created, with 1x Fargate service defined and 2x container tasks/pods running.
 
-
+![](https://route179.files.wordpress.com/2020/06/ecs-fargate.png)
 and here are the two running container tasks/pods:
 
+![](https://route179.files.wordpress.com/2020/06/service-task.png)
 
 Click any of the tasks to confirm its running our demo app image deployed from the ECR repository.
-
+![](https://route179.files.wordpress.com/2020/06/image-2.png)
 
 Next, search for AWS service “Developer Tools —> CodePipeline“, you’ll see our Pipeline has been deployed with a (1st) successful execution.
 
 
+![](https://route179.files.wordpress.com/2020/06/pipeline-run1.png
 Now search for “EC2 —> Load Balancer”, confirm that an ALB has been created and it should be deployed on two different subsets across two AZs.
 
-
+![](https://route179.files.wordpress.com/2020/06/pipeline-run1.png)
 This is because we are spreading the 2x ECS container tasks onto two AZs for high availability
 
+![](https://route179.files.wordpress.com/2020/06/target-group1.png)
 
 Go to the ALB public DNS/URL and you should see the default page of our demo app running on AWS Fargate, cool!
 
+
+
+
+---
 
 Step-4: Test the Pipeline Run
 
@@ -232,30 +242,33 @@ To test the pipeline run, we’ll make a “cosmetic change” to the app revisi
 
 Commit and push to master.
 
+![](https://route179.files.wordpress.com/2020/06/push.png)
 
 As expected, this has triggered a new pipeline run
 
+![](https://route179.files.wordpress.com/2020/06/pipeline-run-2.png)
 
 Soon you’ll see two additional pods are launching with a new revision number of “3” — this is because by default Fargate implements a rolling update deployment strategy with a default minimum healthy percent of 100%. So it will not remove the previous container pods (revision 2) until the new ones are running and ready.
-
+![](https://route179.files.wordpress.com/2020/06/pipeline-run-2.png)
 
 Once the v3 Pods are running and we can see the v2 pods are being terminated and de-registered from the service.
 
+![](https://route179.files.wordpress.com/2020/06/image-3.png)
 
 Eventually the v2 pods are removed and the Fargate service is now updated with revision 3, which consists of the new pods running our demo app “v1.1”.
 
-
+![](https://route179.files.wordpress.com/2020/06/task-updated.png)
 In the CodePipeline history, verify the new build & deployment process have been completed successfully.
 
-
+![](https://route179.files.wordpress.com/2020/06/pipeline-run2.png)
 Also, verify the new image (tag “99cc610”) of the demo app is pushed to ECR as expected.
 
-
+![](https://route179.files.wordpress.com/2020/06/ecr-updated.png)
 Go to the Fargate tasks (revision 3) again and verify the container pods are indeed running on the new image “99cc610”.
 
+![](https://route179.files.wordpress.com/2020/06/task-image-new.png)
 
 Refresh the ALB address to see the v1.1 app page loading — Magic!
 
 
 
-https://route179.dev/2020/06/20/build-a-serverless-ci-cd-pipeline-on-aws-with-fargate-codepipeline-and-terraform/
